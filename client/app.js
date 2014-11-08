@@ -46,7 +46,7 @@ if (Meteor.isClient) {
     canvas = HuddleCanvas.create(host, port, {
       containerId: "huddle-canvas-container",
       backgroundImage: "/images/where-is-waldo1.jpg",
-      panningEnabled: false,
+      panningEnabled: true, //false,
       showDebugBox: false
     });
   };

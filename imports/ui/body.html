@@ -1,15 +1,16 @@
 <body>
-  {{> main}}
+  {{> content}}
 </body>
 
-<template name="main">
+<template name="content">
   {{> canvas}}
 
   {{> connectionDialog}}
 </template>
 
 <template name="canvas">
-  <div id="huddle-canvas-container"></div>
+    <div id="peephole-canvas"></div>
+    <div id="presences-container"></div>
 </template>
 
 <template name="connectionDialog">

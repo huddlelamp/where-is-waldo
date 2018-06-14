@@ -7,6 +7,11 @@ Template.content.onRendered(function() {
 const canvas = document.querySelector('#peephole-canvas');
 const canvasWidth = parseInt(window.getComputedStyle(canvas).width) // image width
 const canvasHeight = parseInt(window.getComputedStyle(canvas).height) // image height
+
+const presencesContainer = document.querySelector('#presences-container');
+const presencesContainerWidth = parseInt(window.getComputedStyle(presencesContainer).width) // presence conta width
+const presencesContainerHeight = parseInt(window.getComputedStyle(presencesContainer).height) // image height
+
 Transformer.bind(canvas).then((transformer) => {
 
     // Create custom render transform for element.
@@ -55,63 +60,48 @@ Transformer.bind(canvas).then((transformer) => {
             transformer.reapplyTransforms();
         },
 
-        // /**
-        //    * Render presence location indicators for other presences. An indicator is
-        //    * a blue line that points in the direction of the presence.
-        //    *
-        //    * @param {Object} presences Other presences.
-        //    */
-        // renderPresences: function (presences) {
+        /**
+           * Render presence location indicators for other presences. An indicator is
+           * a blue line that points in the direction of the presence.
+           *
+           * @param {Object} presences Other presences.
+           */
+        renderPresences: function (presences) {
 
-        //     // array for later removing presences that are not available anymore
-        //     var currentIds = [];
+            // array for later removing presences that are not available anymore
+            var currentIds = [];
 
-        //     var $presenceContainer = $('#presences-container');
-        //     $presenceContainer.addClass('fullheight');
+            presences.forEach(function (presence) {
 
-        //     presences.forEach(function (presence) {
+                if (presence.Type != "Display") return;
 
-        //         if (presence.Type != "Display") return;
+                var identity = parseInt(presence.Identity);
+                var orientation = parseInt(presence.Orientation);
 
-        //         var id2 = parseInt(presence.Identity);
-        //         var location2 = presence.Location;
-        //         var x2 = location2[0];
-        //         var y2 = location2[1];
+                // push id on array that indicates available presences
+                currentIds.push(identity);
 
-        //         // push id on array that indicates available presences
-        //         currentIds.push(id2);
+                var presence = presencesContainer.querySelector(`#presence-${identity}`);
+                if (!presence) {
+                    presence = document.createElement("div");
+                    presence.setAttribute("id", `presence-${identity}`);
+                    presence.setAttribute("presence-id", identity);
+                    presence.classList.add("huddle-presence");
+                    presencesContainer.appendChild(presence);
+                }
+                
+                presence.style.transform = `rotate(${orientation}deg)`;
+            });
 
-        //         var $presence = $('#presence-' + id2);
-
-        //         if (!$presence.length && $presenceContainer.length) {
-        //             var $presenceElement = $('<div id="presence-' + id2 + '" presence-id="' + id2 + '" class="huddle-presence"></div>');
-        //             $presenceContainer.append($presenceElement);
-        //         }
-
-        //         var containerWidth = $('#presences-container').width();
-        //         var containerHeight = $('#presences-container').height();
-
-        //         var presenceWidth = $presence.width();
-
-        //         var presenceLeft = (containerWidth / 2) - (presenceWidth / 2);
-        //         var presenceTop = (containerHeight / 2);
-
-        //         // $presence.css('height', presenceHeight + "px");
-        //         $presence.css('left', presenceLeft + "px");
-        //         $presence.css('top', presenceTop + "px");
-        //         $presence.css('height', $(window).width() + "px");
-        //         $presence.rotate(parseInt(presence.Orientation) - 180);
-        //     });
-
-        //     // removes all presences that are not available anymore
-        //     $('.huddle-presence').each(function (index, value) {
-        //         var presenceId = parseInt($(this).attr('presence-id'));
-        //         if ($.inArray(presenceId, currentIds) < 0) {
-        //             window.console.log("Removed")
-        //             $(this).remove();
-        //         }
-        //     });
-        // },
+            // removes all presences that are not available anymore
+            $('.huddle-presence').each(function (index, value) {
+                var presenceId = parseInt($(this).attr('presence-id'));
+                if ($.inArray(presenceId, currentIds) < 0) {
+                    window.console.log("Removed")
+                    $(this).remove();
+                }
+            });
+        },
 
         /**
            * Connects Huddle client to host and port with the given name.
@@ -130,8 +120,8 @@ Transformer.bind(canvas).then((transformer) => {
                     // move canvas
                     Peephole.moveCanvas(data);
 
-                    // // render presence indicators
-                    // Peephole.renderPresences(data.Presences);
+                    // render presence indicators
+                    Peephole.renderPresences(data.Presences);
                 });
             huddle.connect(host, port);
         },

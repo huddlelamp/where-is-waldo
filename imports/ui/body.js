@@ -41,7 +41,6 @@ Transformer.bind(canvas).then((transformer) => {
            * @param {Object} proximity Proximity data that moves the canvas.
            */
         moveCanvas: function (proximity) {
-            console.log('move canvas', proximity);
             const location = proximity.Location;
             const x = location[0];
             const y = location[1];

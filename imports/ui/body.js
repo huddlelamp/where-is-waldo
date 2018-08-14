@@ -2,6 +2,10 @@ import { Template } from 'meteor/templating';
 
 import './body.html';
 
+const urlParams = new URLSearchParams(window.location.search);
+const host = urlParams.get('host') || "localhost";
+const port = +urlParams.get('port') || 1948;
+
 Template.content.onRendered(function () {
 
     const canvas = document.querySelector('#peephole-canvas');
@@ -66,36 +70,35 @@ Template.content.onRendered(function () {
             renderPresences: function (presences) {
 
                 // array for later removing presences that are not available anymore
-                var currentIds = [];
+                const currentIds = [];
 
                 presences.forEach(function (presence) {
 
                     if (presence.Type != "Display") return;
 
-                    var identity = parseInt(presence.Identity);
-                    var orientation = parseInt(presence.Orientation);
+                    let identity = parseInt(presence.Identity);
+                    let orientation = parseInt(presence.Orientation);
 
                     // push id on array that indicates available presences
                     currentIds.push(identity);
 
-                    var presence = presencesContainer.querySelector(`#presence-${identity}`);
-                    if (!presence) {
-                        presence = document.createElement("div");
-                        presence.setAttribute("id", `presence-${identity}`);
-                        presence.setAttribute("presence-id", identity);
-                        presence.classList.add("huddle-presence");
-                        presencesContainer.appendChild(presence);
+                    let presenceElement = presencesContainer.querySelector(`#presence-${identity}`);
+                    if (!presenceElement) {
+                        presenceElement = document.createElement("div");
+                        presenceElement.setAttribute("id", `presence-${identity}`);
+                        presenceElement.setAttribute("presence-id", identity);
+                        presenceElement.classList.add("huddle-presence");
+                        presencesContainer.appendChild(presenceElement);
                     }
-
-                    presence.style.transform = `rotate(${orientation}deg)`;
+                    presenceElement.style.transform = `rotate(${orientation}deg)`;
                 });
 
                 // removes all presences that are not available anymore
-                $('.huddle-presence').each(function (index, value) {
-                    var presenceId = parseInt($(this).attr('presence-id'));
-                    if ($.inArray(presenceId, currentIds) < 0) {
-                        window.console.log("Removed")
-                        $(this).remove();
+                const presenceElements = document.querySelectorAll('.huddle-presence');
+                Array.from(presenceElements).forEach((presenceElement) => {
+                    const presenceId = +presenceElement.getAttribute("presence-id");
+                    if (!currentIds.includes(presenceId)) {
+                        presenceElement.remove();
                     }
                 });
             },
@@ -124,7 +127,6 @@ Template.content.onRendered(function () {
             },
         };
 
-        Peephole.hutHutHut("localhost", 1948, "HuddleLamp Peephole");
+        Peephole.hutHutHut(host, port, "HuddleLamp Peephole");
     });
-
 });

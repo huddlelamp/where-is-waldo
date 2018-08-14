@@ -1,1 +1,4 @@
 node_modules/
+
+# Meteor Up deploy folder
+.deploy

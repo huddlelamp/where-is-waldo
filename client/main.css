@@ -1,4 +1,7 @@
-/* CSS declarations go here */
+body {
+  overflow: hidden;
+}
+
 #peephole-canvas {
   position: fixed;
   top: 0;

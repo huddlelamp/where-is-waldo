@@ -9,6 +9,8 @@ const port = +urlParams.get('port') || 1948;
 Template.content.onRendered(function () {
 
     const canvas = document.querySelector('#peephole-canvas');
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
     const canvasWidth = parseInt(window.getComputedStyle(canvas).width) // image width
     const canvasHeight = parseInt(window.getComputedStyle(canvas).height) // image height
 
@@ -48,11 +50,35 @@ Template.content.onRendered(function () {
                 const y = location[1];
                 const angle = proximity.Orientation;
 
-                const centerX = canvasWidth * x;
-                const centerY = canvasHeight * y;
+                const ratio = proximity.RgbImageToDisplayRatio;
+                const scaleX = ((1 / ratio.X) * windowWidth) / canvasWidth;
+                const scaleY = ((1 / ratio.Y) * windowHeight) / canvasHeight;
+                // console.log({
+                //     ratio,
+                //     windowWidth,
+                //     windowHeight,
+                //     canvasWidth,
+                //     canvasHeight,
+                //     scaleX,
+                //     scaleY
+                // });
+                // var scaleX = ((1 / ratio.X * windowWidth) / canvasWidth);
+                // var scaleY = ((1 / ratio.Y * windowHeight) / canvasHeight);
+                // console.log('ratio', ratio.X, ratio.Y);
+                // console.log(ratio.X + ', ' + ratio.Y);
+
+                const uniformScale = Math.max(scaleX, scaleY);
+
+                const centerX = (canvasWidth * x) * uniformScale;
+                const centerY = (canvasHeight * y) * uniformScale;
 
                 let centerPoint = { x: centerX, y: centerY };
                 // centerPoint = adjustCenterPoint(centerPoint);
+
+                // scaleTransform.centerPoint.x = centerPoint.x;
+                // scaleTransform.centerPoint.y = centerPoint.y;
+                scaleTransform.set(uniformScale, uniformScale);
+
                 rotateTransform.centerPoint.x = centerPoint.x;
                 rotateTransform.centerPoint.y = centerPoint.y;
                 rotateTransform.set(angle);
